@@ -1,0 +1,12 @@
+---
+- hosts:
+    - cluster
+  name: Configure the vsphere cluster.
+  gather_facts: false
+  roles:
+    - vcenter/gather_facts
+    - cluster/esxi/host
+    - cluster/esxi/license
+    - cluster/esxi/user
+    - cluster/config
+    - cluster/resource_pool

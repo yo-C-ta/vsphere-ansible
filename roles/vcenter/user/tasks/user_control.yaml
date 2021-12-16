@@ -1,0 +1,92 @@
+---
+- name: Gather a domain user info of the given domain
+  community.vmware.vcenter_domain_user_group_info:
+    hostname: "{{ ansible_host }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    domain: "{{ vcenter.admin_user.split('@')[1] }}"
+    search_string: "{{ user.username }}"
+    find_groups: false
+    validate_certs: false
+  register: gather_domain_user_info_result
+  delegate_to: localhost
+  tags:
+    - local_user
+
+- name: Add the domain user of the vsphere.local domain if it doesn't exist and present state
+  community.vmware.vmware_vm_shell:
+    hostname: "{{ esxi.address }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    vm_id: "{{ vcenter.hostname.split('.')[0] }}"
+    vm_username: root
+    vm_password: "{{ vcenter.admin_pass }}"
+    vm_shell: "/usr/lib/vmware-vmafd/bin/dir-cli"
+    vm_shell_args: >-
+      user create
+      --account "{{ user.username }}"
+      --user-password "{{ user.password }}"
+      --login "{{ vcenter.admin_user }}"
+      --password "{{ vcenter.admin_pass }}"
+      --first-name "{{ user.first_name if user.first_name is defined else user.username }}"
+      --last-name "{{ user.last_name if user.last_name is defined else user.username }}"
+    validate_certs: "{{ validate_certs }}"
+    wait_for_process: true
+  delegate_to: localhost
+  changed_when: true
+  when:
+    - user.state == "present"
+    - gather_domain_user_info_result.domain_user_groups | length == 0
+  no_log: true
+  tags:
+    - local_user
+
+- name: Add the domain user to the user group
+  community.vmware.vmware_vm_shell:
+    hostname: "{{ esxi.address }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    vm_id: "{{ vcenter.hostname.split('.')[0] }}"
+    vm_username: root
+    vm_password: "{{ vcenter.admin_pass }}"
+    vm_shell: "/usr/lib/vmware-vmafd/bin/dir-cli"
+    vm_shell_args: >-
+      group modify
+      --name "{{ user.group }}"
+      --add "{{ user.username }}"
+      --login "{{ vcenter.admin_user }}"
+      --password "{{ vcenter.admin_pass }}"
+    validate_certs: "{{ validate_certs }}"
+    wait_for_process: true
+  delegate_to: localhost
+  changed_when: true
+  when:
+    - user.state == "present"
+    - gather_domain_user_info_result.domain_user_groups | length == 0
+  no_log: true
+  tags:
+    - local_user
+
+- name: Delete the domain user of the vsphere.local domain if it exists and absent state
+  community.vmware.vmware_vm_shell:
+    hostname: "{{ esxi.address }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    vm_id: "{{ vcenter.hostname.split('.')[0] }}"
+    vm_username: root
+    vm_password: "{{ vcenter.admin_pass }}"
+    vm_shell: "/usr/lib/vmware-vmafd/bin/dir-cli"
+    vm_shell_args: >-
+      user delete
+      --account "{{ user.username }}"
+      --login "{{ vcenter.admin_user }}"
+      --password "{{ vcenter.admin_pass }}"
+    validate_certs: "{{ validate_certs }}"
+    wait_for_process: true
+  delegate_to: localhost
+  changed_when: true
+  when:
+    - user.state == "absent"
+    - gather_domain_user_info_result.domain_user_groups | length == 1
+  tags:
+    - local_user

@@ -1,0 +1,33 @@
+---
+# https://docs.ansible.com/ansible/latest/collections/community/vmware/vmware_cluster_drs_module.html
+- name: Enable DRS and distribute a more even number of virtual machines across hosts for availability
+  vmware_cluster_drs:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    datacenter_name: "{{ vcenter.datacenter }}"
+    cluster_name: "{{ vcenter.cluster }}"
+    enable: "{{ drs_enabled }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - set_drs
+
+# https://docs.ansible.com/ansible/latest/collections/community/vmware/vmware_cluster_ha_module.html
+- name: Enable HA with admission control
+  vmware_cluster_ha:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    datacenter_name: "{{ vcenter.datacenter }}"
+    cluster_name: "{{ vcenter.cluster }}"
+    enable: "{{ ha_enabled }}"
+    reservation_based_admission_control:
+      failover_level: 1
+    ha_vm_monitoring: vmMonitoringOnly
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - set_ha

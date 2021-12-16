@@ -1,0 +1,25 @@
+---
+- name: Gather info about all Users on given ESXi host system
+  community.vmware.vmware_local_user_info:
+    hostname: "{{ ansible_host }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  tags:
+    - local_user
+
+- name: Add local user to ESXi
+  vmware_local_user_manager:
+    hostname: "{{ ansible_host }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    local_user_name: "{{ item.username }}"
+    local_user_password: "{{ item.password }}"
+    state: "{{ item.state }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  with_items: "{{ esxi.local_users }}"
+  no_log: true # to hide password in log
+  tags:
+    - local_user

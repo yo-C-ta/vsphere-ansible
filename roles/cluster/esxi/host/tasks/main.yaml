@@ -1,0 +1,40 @@
+---
+- name: Gather ESXi facts
+  vmware_host_facts:
+    hostname: "{{ ansible_host }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  tags:
+    - add_esxi_host
+
+- name: Create Cluster with additional changes
+  vmware_cluster:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    datacenter_name: "{{ vcenter.datacenter }}"
+    cluster_name: "{{ vcenter.cluster }}"
+    state: present
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  run_once: true
+  tags:
+    - add_esxi_host
+
+- name: add ESXi host to vCenter
+  vmware_host:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    datacenter_name: "{{ vcenter.datacenter }}"
+    cluster_name: "{{ vcenter.cluster }}"
+    esxi_hostname: "{{ ansible_host }}"
+    esxi_username: "{{ esxi.username }}"
+    esxi_password: "{{ esxi.password }}"
+    validate_certs: "{{ validate_certs }}"
+    state: "{{ esxi_state }}"
+  delegate_to: localhost
+  tags:
+    - add_esxi_host

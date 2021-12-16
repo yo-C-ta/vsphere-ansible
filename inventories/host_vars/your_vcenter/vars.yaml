@@ -1,0 +1,26 @@
+---
+esxi:
+  address: "xxx.xxx.xxx.xxx"
+datastore:
+  name: "Datastore-1"
+vcenter:
+  hostname: "yourvcenter.hoge.example.com" # FQDN and have to use a domain that is already registered in DNS
+  address: "xxx.xxx.xxx.xxx"
+  network_label: "Network-1"
+  datacenters:
+    - name: "Datacenter-1"
+      folders:
+        - "Sample"
+  license:
+    state: "present"
+    key: "00000-00000-00000-00000-00000"
+  local_users:
+    - username: "fuga"
+      password: "{{ vault_user_pass.deploy }}"
+      group: "Administrators"
+      state: "present"
+
+## network
+net:
+  prefix: "26"
+  gateway: "xxx.xxx.xxx.xxx"

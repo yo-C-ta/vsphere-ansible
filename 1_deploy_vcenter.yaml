@@ -1,0 +1,7 @@
+---
+- hosts:
+    - vcenter
+  name: Deploy the VCSA to an ESXi Host from a delegate server.
+  gather_facts: false
+  roles:
+    - vcenter/deploy

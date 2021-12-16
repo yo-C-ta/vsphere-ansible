@@ -1,0 +1,11 @@
+---
+esxi:
+  username: "root"
+  password: "{{ vault_esxi_password }}"
+  local_users: []
+vcenter:
+  admin_user: "administrator@hoge.example.com"
+  admin_pass: "{{ vault_vcenter_password }}"
+
+## certs
+validate_certs: no

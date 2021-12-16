@@ -1,0 +1,13 @@
+---
+- name: Create Datacenter
+  vmware_datacenter:
+    hostname: "{{ ansible_host }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    datacenter_name: "{{ item.name }}"
+    state: present
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  with_items: "{{ vcenter.datacenters }}"
+  tags:
+    - create_datacenter

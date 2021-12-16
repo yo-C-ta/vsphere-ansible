@@ -1,0 +1,68 @@
+---
+- name: Test vcneter ip is not already in use
+  shell: "! ping -c 1 {{ vcenter.address }}"
+  delegate_to: "{{ deploy.delegate_server }}"
+  tags:
+    - deploy_vcenter
+
+- name: Pip install pyvmomi to delegate host
+  pip:
+    name: pyvmomi
+  delegate_to: "{{ deploy.delegate_server }}"
+  run_once: true
+  tags:
+    - deploy_vcenter
+
+# Deploys a new VM in specific datacenter/cluster, with network mapping taken from variable and using ova template from an absolute path
+- name: Deploy vCenter VM from delegete host
+  vmware_deploy_ovf:
+    hostname: "{{ esxi.address }}"
+    username: "{{ esxi.username }}"
+    password: "{{ esxi.password }}"
+    name: "{{ vcenter.hostname.split('.')[0] }}" # Shortname, not FQDN
+    datastore: "{{ datastore.name }}" # Datastore to deploy to.
+    deployment_option: "{{ deploy.size }}"
+    disk_provisioning: "thin"
+    networks:
+      "Network 1": "{{ vcenter.network_label }}" # Network interface for VM
+    ovf: "{{ deploy.ovf_abs_path }}"
+    wait_for_ip_address: true
+    validate_certs: "{{ validate_certs }}"
+    inject_ovf_env: true
+    properties:
+      guestinfo.cis.appliance.net.addr.family: "ipv4" # ipv4 or ipv6
+      guestinfo.cis.appliance.net.mode: "static"      # static or dhcp
+      guestinfo.cis.appliance.net.addr: "{{ vcenter.address }}"
+      guestinfo.cis.appliance.net.pnid: "{{ vcenter.hostname }}" # FQDN of vcenter server
+      guestinfo.cis.appliance.net.prefix: "{{ net.prefix }}" # netmask length, CIDR notation, i.e. "24"
+      guestinfo.cis.appliance.net.gateway: "{{ net.gateway }}"
+      guestinfo.cis.appliance.net.dns.servers: "{{ net.dns.servers }}" # Comma separated list of IP address or DNS servers
+      guestinfo.cis.appliance.root.passwd: "{{ vcenter.admin_pass }}"
+      guestinfo.cis.appliance.ssh.enabled: "true"
+      guestinfo.cis.appliance.ntp.servers: "{{ net.ntp.servers }}"
+      guestinfo.cis.ceip_enabled: "False"
+      guestinfo.cis.deployment.autoconfig: "True" # Auto-configure after deployment
+      guestinfo.cis.vmdir.username: "{{ vcenter.admin_user }}"
+      guestinfo.cis.vmdir.domain-name: "{{ vcenter.admin_user.split('@')[1] }}"
+      guestinfo.cis.vmdir.password: "{{ vcenter.admin_pass }}"
+      domain: "{{ vcenter.hostname.split('.')[1:] | join('.') }}"
+      searchpath: "{{ vcenter.hostname.split('.')[1:] | join('.') }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  delegate_to: "{{ deploy.delegate_server }}"
+  tags:
+    - deploy_vcenter
+
+- name: Wait for vCenter VM
+  vmware_about_info:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: "{{ deploy.delegate_server }}"
+  retries: "{{ 0 if ansible_check_mode else 20 }}"
+  delay: 60
+  register: result
+  until: result is succeeded
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+    - deploy_vcenter

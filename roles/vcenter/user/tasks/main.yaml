@@ -1,0 +1,20 @@
+---
+- include_tasks: user_control.yaml
+  with_items: "{{ vcenter.local_users }}"
+  no_log: true
+  loop_control:
+    loop_var: user
+  tags:
+    - local_user
+
+- name: Gather all domain user and group of the given domain
+  community.vmware.vcenter_domain_user_group_info:
+    hostname: "{{ ansible_host }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    domain: "{{ vcenter.admin_user.split('@')[1] }}"
+    search_string: ""
+    validate_certs: false
+  delegate_to: localhost
+  tags:
+    - local_user

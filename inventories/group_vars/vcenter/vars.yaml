@@ -1,0 +1,16 @@
+---
+deploy:
+  ## delegate to
+  delegate_server: "xxx.xxx.xxx.xxx"
+  ovf_abs_path: "/home/path/to/the/ovf/file/VMware-vCenter-Server-Appliance-7.0.3.00000-18700403_OVF10.ova"
+
+  # https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vcenter.install.doc/GUID-88571D8A-46E1-464D-A349-4DC43DCAF320.html
+  # https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vcenter.install.doc/GUID-FB268055-5D36-4624-A64C-9800D3FCB689.html
+  size: "small"
+
+## network
+net:
+  dns:
+    servers: "xxx.xxx.xxx.xxx"
+  ntp:
+    servers: "xxx.xxx.xxx.xxx,xxx.xxx.xxx.xxx"

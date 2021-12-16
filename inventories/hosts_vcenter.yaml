@@ -1,0 +1,5 @@
+---
+vcenter:
+  hosts:
+    your_vcenter:
+      ansible_host: "xxx.xxx.xxx.xxx"

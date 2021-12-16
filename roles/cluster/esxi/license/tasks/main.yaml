@@ -1,0 +1,13 @@
+---
+- name: Add ESXi license and assign to the ESXi host
+  vcenter_license:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    esxi_hostname: "{{ ansible_host }}"
+    license: "{{ license.key }}"
+    state: "{{ license.state }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  tags:
+    - add_license

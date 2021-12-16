@@ -1,0 +1,12 @@
+---
+- name: Add a new vCenter license
+  vcenter_license:
+    hostname: "{{ ansible_host }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    license: "{{ vcenter.license.key }}"
+    state: "{{ vcenter.license.state }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  tags:
+    - add_license

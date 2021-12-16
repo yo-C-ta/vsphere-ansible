@@ -1,0 +1,9 @@
+---
+- name: Gather vCenter facts
+  vmware_about_info:
+    hostname: "{{ vcenter.hostname }}"
+    username: "{{ vcenter.admin_user }}"
+    password: "{{ vcenter.admin_pass }}"
+    validate_certs: "{{ validate_certs }}"
+  delegate_to: localhost
+  run_once: true

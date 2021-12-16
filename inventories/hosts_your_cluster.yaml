@@ -1,0 +1,30 @@
+---
+cluster:
+  vars:
+    vcenter:
+      hostname: "yourvcenter.hoge.example.com"
+      datacenter: "Datacenter-2"
+      cluster: "Cluster-2"
+      resource_pools:
+        - "RP-Sample"
+    drs_enabled: true
+    ha_enabled: true
+  hosts:
+    your_esxi1:
+      ansible_host: "youresxi1.hoge.example.com"
+      esxi_state: "present"
+      license:
+        state: "present"
+        key: "00000-00000-00000-00000-00000"
+    your_esxi2:
+      ansible_host: "youresxi2.hoge.example.com"
+      esxi_state: "present"
+      license:
+        state: "present"
+        key: "00000-00000-00000-00000-00000"
+    your_esxi3:
+      ansible_host: "youresxi3.hoge.example.com"
+      esxi_state: "present"
+      license:
+        state: "present"
+        key: "00000-00000-00000-00000-00000"

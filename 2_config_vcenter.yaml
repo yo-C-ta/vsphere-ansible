@@ -1,0 +1,11 @@
+---
+- hosts:
+    - vcenter
+  name: Configure the vcenter.
+  gather_facts: false
+  roles:
+    - vcenter/gather_facts
+    - vcenter/license
+    - vcenter/user
+    - vcenter/datacenter
+    - vcenter/folder
